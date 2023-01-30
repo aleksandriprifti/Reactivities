@@ -1,17 +1,23 @@
-import React from 'react';
+import * as React from 'react';
 import ReactDOM from 'react-dom/client';
+import "./app/layout/style.css"
 import 'semantic-ui-css/semantic.min.css'
-import './index.css';
-import App from './App';
+import { StyledEngineProvider, CssVarsProvider } from '@mui/joy/styles';
+
+import App from './app/layout/App';
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
-  <React.Fragment>
-    <App />
-  </React.Fragment>
+  <React.Fragment >
+    <StyledEngineProvider injectFirst>
+      <CssVarsProvider>
+        <App />
+      </CssVarsProvider>
+    </StyledEngineProvider>
+  </React.Fragment >
 );
 
 // If you want to start measuring performance in your app, pass a function
