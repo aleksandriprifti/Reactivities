@@ -2,13 +2,15 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { Container } from 'semantic-ui-react';
 import { Activity } from '../modules/Activity';
 import { NavBar } from './NavBar';
-import { ActivityDashboard } from '../../features/activities/dashboard/ActivityDashboard';
+import ActivityDashboard from "../../features/activities/dashboard/ActivityDashboard";
 import { Box, Grid } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
 import { v4 as uuid } from 'uuid';
 import agent from "../api/agent";
 import LoadingComponent from './LoadingComponent';
+import { useStore } from '../stores/store';
+import { observer } from 'mobx-react-lite';
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -20,6 +22,8 @@ const Item = styled(Paper)(({ theme }) => ({
 
 function App() {
 
+  const { activityStore } = useStore();
+
   const [activities, setActivities] = useState<Activity[]>([]);
   const [selectedActivity, setSelectedActivity] = useState<Activity | undefined>(undefined);
   const [editMode, setEditMode] = useState(false);
@@ -27,33 +31,8 @@ function App() {
 
 
   useEffect(() => {
-    agent.Activities.list().then(response => {
-      let activities: Activity[] = [];
-      response.forEach(activity => {
-        activity.date = activity.date.split('T')[0];
-        activities.push(activity)
-      })
-      setActivities(activities);
-
-    })
-  }, []);
-
-  const handleSelectedActivity = (id: string) => {
-    setSelectedActivity(activities.find(x => x.id === id));
-  }
-
-  const handleCancelSelectedActivity = () => {
-    setSelectedActivity(undefined);
-  }
-
-  const handleFormOpen = (id?: string) => {
-    id ? handleSelectedActivity(id) : handleCancelSelectedActivity();
-    setEditMode(true);
-  }
-
-  const handleFormClose = () => {
-    setEditMode(false);
-  }
+    activityStore.loadActivities();
+  }, [activityStore]);
 
   const handleCreateOrEditActivity = (activity: Activity) => {
     if (activity.id) {
@@ -77,24 +56,21 @@ function App() {
       setActivities([...activities.filter(x => x.id !== id)])
     })
 
-  }
+    }
+
+  //if(activityStore.loadingInitial) return <LoadingComponent content ="Loading app..."/>
 
   return (
     <Fragment>
-      <NavBar openForm={handleFormOpen} />
+      <NavBar />
       <Container style={{ marginTop: '7rem' }}>
         <Box sx={{ flexGrow: 1 }}>
           <Grid container spacing={2}>
             <ActivityDashboard
-              activities={activities}
-              selectedActivity={selectedActivity}
-              selectActivity={handleSelectedActivity}
-              cancelSelectActivity={handleCancelSelectedActivity}
-              editMode={editMode}
-              openForm={handleFormOpen}
-              closeForm={handleFormClose}
-              createOrEdit={handleCreateOrEditActivity}
-              deleteActivity={handleDeleteActivity}
+                activities={activityStore.activities}
+                createOrEdit={handleCreateOrEditActivity}
+                deleteActivity={handleDeleteActivity}
+                 submitting={submitting}
             />
           </Grid>
         </Box>
@@ -103,4 +79,4 @@ function App() {
   );
 }
 
-export default App;
+export default observer(App);

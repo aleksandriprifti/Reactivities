@@ -10,6 +10,7 @@ import { Activity } from '../../../app/modules/Activity';
 import { Button, CardActions, Grid } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
+import { useStore } from '../../../app/stores/store';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -21,11 +22,13 @@ const Item = styled(Paper)(({ theme }) => ({
 
 interface Props {
     activities: Activity[];
-    selectActivity: (id: string) => void;
     deleteActivity: (id: string) => void;
+    submitting: boolean;
 }
 
-export const ActivityList = ({ activities, selectActivity, deleteActivity }: Props) => {
+export const ActivityList = ({ activities, deleteActivity, submitting }: Props) => {
+
+    const { activityStore } = useStore();
 
     const theme = useTheme();
     return (
@@ -62,7 +65,7 @@ export const ActivityList = ({ activities, selectActivity, deleteActivity }: Pro
                                             </Typography>
                                         </CardContent>
                                         <CardActions>
-                                            <Button size="small" variant='outlined' onClick={() => selectActivity(activity.id)} >View</Button>
+                                            <Button size="small" variant='outlined' onClick={() => activityStore.selectActivity(activity.id)} >View</Button>
                                             <Button size="small" variant='contained' onClick={() => deleteActivity(activity.id)} >Delete</Button>
                                         </CardActions>
                                     </Box>
